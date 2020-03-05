@@ -1,5 +1,3 @@
-. shared-solution-files\functions.ps1
-
 param (
     [ValidatePattern('^\d+(\.\d+){2}(\-rc\d*)?$')][string] $Version = '1.0.0',
     [ValidateSet('Debug', 'Release')][string] $Configuration = 'Release',
@@ -10,6 +8,8 @@ param (
     [switch] $PublishToNuGet,
     [string] $NuGetApiKey
 )
+
+. shared-solution-files\functions.ps1
 
 Push-Location (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
 
