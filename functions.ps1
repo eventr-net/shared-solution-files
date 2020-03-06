@@ -135,9 +135,13 @@ function Publish-NuGetPackagesLocally {
         [string] $PackageDir = $global:PUBLISH_DIR,
         [string] $NugetPackagesRoot = $global:NUGET_PACKAGES_ROOT        
     )
+    [regex]$rx = "^(?<name>[^\d]+)\.(?<ver>\d+(\.\d+)+)\.nupkg$"
     Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
         $nugetFilename = Split-Path $_.FullName -Leaf
-        Write-Debug "Publishing $nugetFilename to local NuGet repository $NugetPackagesRoot"
+        $match = $rx.Match($nugetFilename)
+        $name = $match.Groups['name'].Value
+        $ver = $match.Groups['ver'].Value
+        (& $NugetPath delete $name $ver -Source $NugetPackagesRoot -NonInteractive -Verbosity quiet) | Out-Null
         & $NugetPath add $_.FullName -Source $NugetPackagesRoot -NonInteractive
     }
 }
