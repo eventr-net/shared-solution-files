@@ -13,6 +13,7 @@ function Set-Const {
 Set-Const DOTNET_PATH 'dotnet'
 Set-Const NUGET_PATH 'nuget'
 Set-Const NUGET_FEED_URL 'https://api.nuget.org/v3/index.json'
+Set-Const GIT_PATH 'git'
 $global:PUBLISH_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('./publish')
 
 function Get-NugetGlobalPackagesPath {
@@ -85,6 +86,21 @@ function Clear-SolutionDirectory {
     Write-Host '>>> Cleaning solution >>>' -ForegroundColor Yellow
     Get-ChildItem $Path -Include bin,obj,publish,packages -Recurse | ForEach-Object {
         Remove-Item $_.FullName -Force -Recurse -ErrorAction SilentlyContinue
+    }
+}
+
+function Write-AdditionalAssemblyInfo {
+    param (
+        [string] $GitPath = $global:GIT_PATH
+    )
+    $commit = (& $GitPath rev-parse HEAD)
+    if (($LastExitCode -eq 0) -and ($commit -ne '')) {
+        $date = Get-Date -Format "yyyy-MM-ddTHH:mm:ssK"
+        $content = "[assembly: System.Reflection.AssemblyConfiguration(""$commit|$date"")]"
+        Get-ChildItem './src' -Include '*.csproj' -Recurse | ForEach-Object {
+            $file = Join-Path (Split-Path $_.FullName) 'AssemblyInfoGenerated.cs'
+            $content | Set-Content -Path $file -Force
+        }        
     }
 }
 
