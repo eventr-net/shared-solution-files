@@ -25,6 +25,13 @@ function Get-NugetGlobalPackagesPath {
 
 Set-Const NUGET_PACKAGES_ROOT (Get-NugetGlobalPackagesPath)
 
+function Get-SolutionFile {
+    param (
+        [string] $BaseDir = './'
+    )
+    return (Get-ChildItem -Path $BaseDir -Filter '*.sln' -Recurse -ErrorAction Stop | Select-Object -First 1).FullName
+}
+
 function Write-Label {
     param (
         [string][Parameter(Mandatory=$true)] $Label
@@ -83,7 +90,6 @@ function Clear-SolutionDirectory {
     param (
         [string] $Path = './'
     )
-    Write-Host '>>> Cleaning solution >>>' -ForegroundColor Yellow
     Get-ChildItem $Path -Include bin,obj,publish,packages -Recurse | ForEach-Object {
         Remove-Item $_.FullName -Force -Recurse -ErrorAction SilentlyContinue
     }
@@ -116,10 +122,9 @@ function Publish-NuGetPackages {
         Write-Host 'NuGet API key is not provided. Either pass it explicitly or set environment property NUGET_APIKEY_EVENTR.' -ForegroundColor Red
         Exit 1
     }
-    Write-Host $PackageDir
     Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
         $nugetFilename = Split-Path $_.FullName -Leaf
-        Write-Host ">>> Publishing $nugetFilename to NuGet >>>" -ForegroundColor Yellow
+        Write-Debug "Publishing $nugetFilename to NuGet"
         & $NugetPath push $_.FullName -k $NuGetApiKey -s $NugetFeedUrl
     }
 }
@@ -132,7 +137,7 @@ function Publish-NuGetPackagesLocally {
     )
     Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
         $nugetFilename = Split-Path $_.FullName -Leaf
-        Write-Host ">>> Publishing $nugetFilename to local NuGet repository $NugetPackagesRoot >>>" -ForegroundColor Yellow
+        Write-Debug "Publishing $nugetFilename to local NuGet repository $NugetPackagesRoot"
         & $NugetPath add $_.FullName -Source $NugetPackagesRoot -NonInteractive
     }
 }
