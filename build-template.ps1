@@ -8,6 +8,7 @@ param (
     [switch] $RunTests,
     [switch] $CreatePackages,
     [switch] $PublishToNuGet,
+    [switch] $PublishLocally,
     [string] $NuGetApiKey
 )
 
@@ -38,7 +39,7 @@ Write-AdditionalAssemblyInfo
 Get-LastExecErrorAndExitIfExists 'The build has failed'
 
 # unit tests
-if ($RunTests -or $PublishToNuGet) {
+if ($RunTests -or $PublishToNuGet -or $PublishLocally) {
     Get-ChildItem './test' -Include '*.Tests.csproj' -Recurse | ForEach-Object {
         $projName = [System.IO.Path]::GetFileNameWithoutExtension($_.FullName)
         Write-Label "Running unit tests $projName"
@@ -48,7 +49,7 @@ if ($RunTests -or $PublishToNuGet) {
 }
 
 # create packages
-if ($CreatePackages -or $PublishToNuGet) {    
+if ($CreatePackages -or $PublishToNuGet -or $PublishLocally) {    
     Get-ChildItem './src' -Include '*.csproj' -Recurse | ForEach-Object {
         $projName = [System.IO.Path]::GetFileNameWithoutExtension($_.FullName)
         Write-Label "Packaging $projName"
@@ -60,6 +61,10 @@ if ($CreatePackages -or $PublishToNuGet) {
 # publish
 if ($PublishToNuGet) {
     Publish-NuGetPackages
+}
+
+if ($PublishLocally) {
+    Publish-NuGetPackagesLocally
 }
 
 Pop-Location

@@ -123,3 +123,16 @@ function Publish-NuGetPackages {
         & $NugetPath push $_.FullName -k $NuGetApiKey -s $NugetFeedUrl
     }
 }
+
+function Publish-NuGetPackagesLocally {
+    param (
+        [string] $NugetPath = $global:NUGET_PATH,
+        [string] $PackageDir = $global:PUBLISH_DIR,
+        [string] $NugetPackagesRoot = $global:NUGET_PACKAGES_ROOT        
+    )
+    Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
+        $nugetFilename = Split-Path $_.FullName -Leaf
+        Write-Host ">>> Publishing $nugetFilename to local NuGet repository $NugetPackagesRoot >>>" -ForegroundColor Yellow
+        & $NugetPath add $_.FullName -Source $NugetPackagesRoot -NonInteractive
+    }
+}
