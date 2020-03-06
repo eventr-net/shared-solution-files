@@ -31,6 +31,16 @@ function Write-Label {
     Write-Host ">>> $Label >>>" -ForegroundColor Yellow
 }
 
+function Get-LastExecErrorAndExitIfExists {
+    param (
+        [string][Parameter(Mandatory=$true)] $Message
+    )
+    if ($LastExitCode -ne 0) {
+        Write-Host $Message -ForegroundColor Red
+        Exit $LastExitCode
+    }
+}
+
 function Write-NugetInfo {
     param (
         [string] $NugetPath = $global:NUGET_PATH
@@ -85,13 +95,13 @@ function Publish-NuGetPackages {
         [string] $NugetFeedUrl = $global:NUGET_FEED_URL,
         [string] $PackageDir = $global:PUBLISH_DIR        
     )
-    $NuGetApiKey = if ($NuGetApiKey -ne '') {$NuGetApiKey} else {Get-Childitem env:NUGET_APIKEY_EVENTR}
+    $NuGetApiKey = if ($NuGetApiKey -ne '') {$NuGetApiKey} else {$env:NUGET_APIKEY_EVENTR}
     if (-not $NuGetApiKey) {
-        Write-Error 'NuGet API key is not provided. Either pass it explicitly or set environment property NUGET_APIKEY_EVENTR.'
+        Write-Host 'NuGet API key is not provided. Either pass it explicitly or set environment property NUGET_APIKEY_EVENTR.' -ForegroundColor Red
         Exit 1
     }
-
-    Get-ChildItem $PackageDir -Include '*.nupkg' | ForEach-Object {
+    Write-Host $PackageDir
+    Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
         $nugetFilename = Split-Path $_.FullName -Leaf
         Write-Host ">>> Publishing $nugetFilename to NuGet >>>" -ForegroundColor Yellow
         & $NugetPath push $_.FullName -k $NuGetApiKey -s $NugetFeedUrl
