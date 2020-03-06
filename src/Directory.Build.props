@@ -1,0 +1,29 @@
+<Project>
+
+  <Import Project="..\shared.props" />
+  <Import Project="..\dependencies.props" />
+
+  <PropertyGroup>
+    <PackageVersion>$(Version)</PackageVersion>
+    <IsPackable>true</IsPackable>
+    <PackageProjectUrl>https://eventr-net.github.io</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/eventr-net/eventr</RepositoryUrl>
+    <PackageIcon>logo_128.png</PackageIcon>
+    <PackageTags>event-sourcing; database; persistence</PackageTags>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright (c) 2019 Jan Dvorak</Copyright>
+    <Authors>Jan Dvorak</Authors>
+    <CodeAnalysisRuleSet Condition="'$(CodeAnalysis)'!='False'">..\..\shared-solution-files\eventr.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors Condition="'$(WarningsAsErrors)'=='True'">true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CodeAnalysis)'!='False'">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="$(FxCopAnalyzersVersion)" PrivateAssets="all"/>
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="all"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\shared-solution-files\logo_128.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+</Project>

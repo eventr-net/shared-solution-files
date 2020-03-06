@@ -13,7 +13,7 @@ function Set-Const {
 Set-Const DOTNET_PATH 'dotnet'
 Set-Const NUGET_PATH 'nuget'
 Set-Const NUGET_FEED_URL 'https://api.nuget.org/v3/index.json'
-Set-Const PUBLISH_DIR ($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('./publish'))
+$global:PUBLISH_DIR = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('./publish')
 
 function Get-NugetGlobalPackagesPath {
     param (
