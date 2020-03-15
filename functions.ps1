@@ -146,7 +146,8 @@ function Publish-NuGetPackagesLocally {
     param (
         [string] $NugetPath = $global:NUGET_PATH,
         [string] $PackageDir = $global:PUBLISH_DIR,
-        [string] $NugetLocalFeed = $global:NUGET_LOCAL_FEED        
+        [string] $NugetLocalFeed = $global:NUGET_LOCAL_FEED,
+        [string] $NugetPackagesRoot = $global:NUGET_PACKAGES_ROOT         
     )
     [regex]$rx = "^(?<name>[^\d]+)\.(?<ver>\d+(\.\d+)+)\.nupkg$"
     Get-ChildItem $PackageDir -Include '*.nupkg' -Recurse | ForEach-Object {
@@ -154,6 +155,7 @@ function Publish-NuGetPackagesLocally {
         $match = $rx.Match($nugetFilename)
         $name = $match.Groups['name'].Value
         $ver = $match.Groups['ver'].Value
+        (& $NugetPath delete $name $ver -Source $NugetPackagesRoot -NonInteractive -Verbosity quiet) | Out-Null
         (& $NugetPath delete $name $ver -Source $NugetLocalFeed -NonInteractive -Verbosity quiet) | Out-Null
         & $NugetPath add $_.FullName -Source $NugetLocalFeed -NonInteractive
     }
