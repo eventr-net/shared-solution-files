@@ -123,6 +123,26 @@ function Write-AdditionalAssemblyInfo {
     }
 }
 
+function Invoke-Tests {
+    param (
+        [Parameter(Mandatory=$true)][string] $ProjectPattern,
+        [string] $DotnetPath = $global:DOTNET_PATH,
+        [ValidateSet('Debug', 'Release')][string] $Configuration = 'Release',
+        [ValidateSet('quiet', 'minimal', 'normal', 'detailed', 'diagnostic')][string] $Verbosity = 'minimal',
+        [string] $Filter # https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test#filter-option-details
+    )
+    Get-ChildItem './test' -Include $ProjectPattern -Recurse | ForEach-Object {
+        $projName = [System.IO.Path]::GetFileNameWithoutExtension($_.FullName)
+        Write-Debug "Running tests $projName"
+        if ($Filter -ne '') {
+            & $DotnetPath test $_.FullName -c $Configuration -v $Verbosity --filter $Filter --no-build --no-restore /nologo
+        } else {
+            & $DotnetPath test $_.FullName -c $Configuration -v $Verbosity --no-build --no-restore /nologo
+        }
+        Get-LastExecErrorAndExitIfExists "One or more tests have failed while running $projName"
+    }
+}
+
 function Publish-NuGetPackages {
     param (
         [string] $NuGetApiKey,
