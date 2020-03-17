@@ -10,7 +10,8 @@ param (
     [switch] $CreatePackages,
     [switch] $PublishToNuGet,
     [switch] $PublishLocally,
-    [string] $NuGetApiKey
+    [string] $NuGetApiKey,
+    [string] $TestsFilter
 )
 
 . shared-solution-files\functions.ps1
@@ -43,13 +44,13 @@ Get-LastExecErrorAndExitIfExists 'The build has failed'
 # unit tests
 if ($RunTests -or $PublishToNuGet -or $PublishLocally) {
     Write-Label "Running unit tests"
-    Invoke-Tests '*.Tests.csproj' -Configuration $Configuration -Verbosity $Verbosity
+    Invoke-Tests '*.Tests.csproj' -Configuration $Configuration -Verbosity $Verbosity -Filter $TestsFilter
 }
 
 # integration tests
 if ($RunIntegrationTests) {
     Write-Label "Running integration tests"
-    Invoke-Tests '*.IntegrationTests.csproj' -Configuration $Configuration -Verbosity $Verbosity
+    Invoke-Tests '*.IntegrationTests.csproj' -Configuration $Configuration -Verbosity $Verbosity -Filter $TestsFilter
 }
 
 # create packages
